@@ -1,4 +1,4 @@
-FROM nvidia/cuda
+FROM nvidia/cuda:8.0-devel
 
 RUN apt-get update && apt-get install -y software-properties-common && \
     add-apt-repository ppa:george-edison55/cmake-3.x && \
