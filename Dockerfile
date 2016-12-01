@@ -1,4 +1,5 @@
 FROM nvidia/cuda:8.0-devel
+MAINTAINER support@arrayfire.com
 
 RUN apt-get update && apt-get install -y software-properties-common && \
     add-apt-repository ppa:george-edison55/cmake-3.x && \
