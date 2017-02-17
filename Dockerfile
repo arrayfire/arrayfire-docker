@@ -1,4 +1,4 @@
-FROM nvidia/cuda:8.0-devel
+FROM nvidia/cuda:8.0-devel-ubuntu14.04
 MAINTAINER support@arrayfire.com
 
 RUN apt-get update && apt-get install -y software-properties-common && \
