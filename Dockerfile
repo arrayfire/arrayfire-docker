@@ -2,8 +2,6 @@ FROM nvidia/cuda:8.0-devel-ubuntu16.04
 MAINTAINER support@arrayfire.com
 
 RUN apt-get update && apt-get install -y software-properties-common && \
-    add-apt-repository ppa:george-edison55/cmake-3.x && \
-    apt-get update && \
     apt-get install -y --no-install-recommends \
         build-essential \
         clinfo \
@@ -13,13 +11,13 @@ RUN apt-get update && apt-get install -y software-properties-common && \
         libfftw3-dev \
         libfontconfig1-dev \
         libfreeimage-dev \
-        xorg-dev \
         liblapack-dev \
         liblapacke-dev \
         libopenblas-dev \
         ocl-icd-opencl-dev \
         opencl-headers \
-        wget && \
+        wget \
+        xorg-dev && \
     rm -rf /var/lib/apt/lists/*
 
 # Setting up symlinks for libcuda and OpenCL ICD
