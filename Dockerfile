@@ -1,5 +1,7 @@
-FROM nvidia/cuda:8.0-devel-ubuntu16.04
+FROM nvidia/cuda:11.4.2-devel-ubuntu20.04
 MAINTAINER support@arrayfire.com
+
+ENV DEBIAN_FRONTEND=nonintercative
 
 RUN apt-get update && apt-get install -y software-properties-common && \
     apt-get install -y --no-install-recommends \
@@ -32,7 +34,7 @@ ENV PATH=/usr/local/nvidia/bin:/usr/local/cuda/bin:${PATH}
 WORKDIR /root
 
 # Build GLFW from source
-RUN git clone https://github.com/glfw/glfw.git && \
+RUN git clone --depth 1 --branch 3.3.4 https://github.com/glfw/glfw.git && \
     cd glfw && \
     mkdir build && \
     cd build && \
@@ -40,6 +42,15 @@ RUN git clone https://github.com/glfw/glfw.git && \
     make -j4 && \
     make install
 
+RUN cd /tmp && \
+    wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB && \
+    apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB && \
+    rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB && \
+    echo "deb https://apt.repos.intel.com/oneapi all main" | tee /etc/apt/sources.list.d/oneAPI.list && \
+    add-apt-repository "deb https://apt.repos.intel.com/oneapi all main" && \
+    apt update -y && apt install -y intel-basekit
+
+SHELL ["/bin/bash", "-c"]
 
 # AF_DISABLE_GRAPHICS - Environment variable to disable graphics at
 # runtime due to lack of graphics support by docker - visit
@@ -47,21 +58,18 @@ RUN git clone https://github.com/glfw/glfw.git && \
 # for more information
 ENV AF_PATH=/opt/arrayfire AF_DISABLE_GRAPHICS=1
 ARG COMPILE_GRAPHICS=OFF
-RUN git clone --recursive https://github.com/arrayfire/arrayfire.git -b master && \
+RUN source /opt/intel/oneapi/setvars.sh && \
+    git clone --depth 1 --recursive https://github.com/arrayfire/arrayfire.git -b master && \
     cd arrayfire && mkdir build && cd build && \
     cmake .. -DCMAKE_INSTALL_PREFIX=/opt/arrayfire-3 \
              -DCMAKE_BUILD_TYPE=Release \
-             -DBUILD_CPU=ON \
-             -DBUILD_CUDA=ON \
-             -DBUILD_OPENCL=ON \
-             -DBUILD_UNIFIED=ON \
-             -DBUILD_GRAPHICS=${COMPILE_GRAPHICS} \
-             -DBUILD_NONFREE=OFF \
-             -DBUILD_EXAMPLES=ON \
-             -DBUILD_TEST=ON \
-             -DBUILD_DOCS=OFF \
-             -DINSTALL_FORGE_DEV=ON \
-             -DUSE_FREEIMAGE_STATIC=OFF && \
+             -DAF_BUILD_CPU=ON \
+             -DAF_BUILD_CUDA=ON \
+             -DAF_BUILD_DOCS=OFF \
+             -DAF_BUILD_EXAMPLES=ON \
+             -DAF_BUILD_OPENCL=ON \
+             -DAF_BUILD_UNIFIED=ON \
+             -DAF_WITH_FREEIMAGE_STATIC=OFF && \
              # -DCOMPUTES_DETECTED_LIST="30;35;37;50;52;60" \
     make -j8 && make install && \
     mkdir -p ${AF_PATH} && ln -s /opt/arrayfire-3/* ${AF_PATH}/ && \
