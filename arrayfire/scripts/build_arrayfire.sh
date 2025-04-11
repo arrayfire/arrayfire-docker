@@ -85,7 +85,6 @@ if [[ ! -d arrayfire/ ]]; then
     git config user.email "installer@docker.xyz"
     git config user.name "Installer Builder"
     git merge -m "add_mkl_install_libs" origin/add_mkl_install_libs
-    git merge -m "allow_minor_ver_compat" origin/allow_minor_ver_compat
     git merge -m "update_af_deps" origin/update_af_deps
 else
     cd arrayfire
