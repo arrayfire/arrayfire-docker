@@ -1,4 +1,9 @@
 #!/bin/bash
+
+function getLibrary {
+    echo "`find $1 -name $2.so* | xargs |  awk '{ gsub(\" \",\";\",$0); print $0 }'`;"
+}
+
 set -e
 set -x
 
@@ -98,8 +103,16 @@ if [ "$use_oneapi" = "ON" ]; then
     set +x
     source /opt/intel/oneapi/setvars.sh
     set -x
-    # Additional libraries are not needed because they are provided by the runtime
-    #compute_library_cmake_flag+=" -DAF_ADDITIONAL_MKL_LIBRARIES:FILEPATHS=`find $TBBROOT -name libtbb.so* | xargs |  awk '{ gsub(\" \",\";\",$0); print $0 }'`;`find $CMPLR_ROOT/lib -name libintlc.so* | xargs |  awk '{ gsub(\" \",\";\",$0); print $0 }'`;`find $CMPLR_ROOT/lib -name libsycl.so* | xargs |  awk '{ gsub(\" \",\";\",$0); print $0 }'`;`find $CMPLR_ROOT/lib -name libur_loader.so* | xargs |  awk '{ gsub(\" \",\";\",$0); print $0 }'`"
+    compute_library_cmake_flag+=" -DAF_ADDITIONAL_MKL_LIBRARIES:FILEPATHS="
+    compute_library_cmake_flag+=$(getLibrary $TBBROOT libtbb)
+    compute_library_cmake_flag+=$(getLibrary $CMPLR_ROOT/lib libimf)
+    compute_library_cmake_flag+=$(getLibrary $CMPLR_ROOT/lib libsycl)
+    compute_library_cmake_flag+=$(getLibrary $CMPLR_ROOT/lib libsvml)
+    compute_library_cmake_flag+=$(getLibrary $CMPLR_ROOT/lib libirng)
+    compute_library_cmake_flag+=$(getLibrary $CMPLR_ROOT/lib libintlc)
+    compute_library_cmake_flag+=$(getLibrary $CMPLR_ROOT/lib libur_loader)
+    compute_library_cmake_flag+=$(getLibrary $CMPLR_ROOT/lib libur_adapter_opencl)
+    compute_library_cmake_flag+=$(getLibrary $UMF_ROOT/lib libumf)
 fi
 
 # Look for correct OpenCL library and headers, location depends on the distro
