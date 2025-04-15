@@ -27,8 +27,8 @@ services:
     depends_on:
       - af_manylinux_2_28_cuda_12.8
     volumes:
-      - /home/arrayfire/build_dockers/arrayfire/scripts:/scripts
-      - /home/arrayfire/build_dockers/build_manylinux_arrayfire_mkl_2025_cuda_12_8:/usr/src
+      - ./arrayfire/scripts:/scripts
+      - ./build_manylinux_arrayfire_mkl_2025_cuda_12_8:/usr/src
     stdin_open: true
     tty: true
     command: "/scripts/build_arrayfire.sh --build-type RelWithDebInfo 
@@ -39,8 +39,8 @@ services:
     depends_on:
       - af_manylinux_2_28_cuda_12.8
     volumes:
-      - /home/arrayfire/build_dockers/arrayfire/scripts:/scripts
-      - /home/arrayfire/build_dockers/build_manylinux_arrayfire_openblas_cuda_12_8:/usr/src
+      - ./arrayfire/scripts:/scripts
+      - ./build_manylinux_arrayfire_openblas_cuda_12_8:/usr/src
     stdin_open: true
     tty: true
     command: "/scripts/build_arrayfire.sh --build-type RelWithDebInfo 
@@ -74,8 +74,8 @@ services:
     depends_on:
       - af_ubuntu_22_04_cuda_12.8
     volumes:
-      - /home/arrayfire/build_dockers/arrayfire/scripts:/scripts
-      - /home/arrayfire/build_dockers/build_ubuntu_arrayfire_mkl_2025_cuda_12_8:/usr/src
+      - ./arrayfire/scripts:/scripts
+      - ./build_ubuntu_arrayfire_mkl_2025_cuda_12_8:/usr/src
     stdin_open: true
     tty: true
     command: "/scripts/build_arrayfire.sh --build-type RelWithDebInfo 
@@ -86,8 +86,8 @@ services:
     depends_on:
       - af_ubuntu_22_04_cuda_12.8
     volumes:
-      - /home/arrayfire/build_dockers/arrayfire/scripts:/scripts
-      - /home/arrayfire/build_dockers/build_ubuntu_arrayfire_openblas_cuda_12_8:/usr/src
+      - ./arrayfire/scripts:/scripts
+      - ./build_ubuntu_arrayfire_openblas_cuda_12_8:/usr/src
     stdin_open: true
     tty: true
     command: "/scripts/build_arrayfire.sh --build-type RelWithDebInfo 
