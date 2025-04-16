@@ -1,7 +1,13 @@
 #!/bin/bash
 
 function getLibrary {
-    echo "`find $1 -name $2.so* | xargs |  awk '{ gsub(\" \",\";\",$0); print $0 }'`;"
+    find $1 -name $2.so* -exec cp "{}" /tmp \;
+    find /tmp -name $2.so* -exec patchelf --set-rpath '$ORIGIN' "{}" \;
+    echo "`find /tmp -name $2.so* | xargs |  awk '{ gsub(\" \",\";\",$0); print $0 }'`;"
+}
+
+function getFile {
+    echo "`find $1 -name $2 | xargs |  awk '{ gsub(\" \",\";\",$0); print $0 }'`;"
 }
 
 set -e
@@ -112,6 +118,14 @@ if [ "$use_oneapi" = "ON" ]; then
     compute_library_cmake_flag+=$(getLibrary $CMPLR_ROOT/lib libintlc)
     compute_library_cmake_flag+=$(getLibrary $CMPLR_ROOT/lib libur_loader)
     compute_library_cmake_flag+=$(getLibrary $CMPLR_ROOT/lib libur_adapter_opencl)
+    compute_library_cmake_flag+=$(getFile $CMPLR_ROOT/lib cl.cfg)
+    compute_library_cmake_flag+=$(getFile $CMPLR_ROOT/lib clbltfn*.rtl)
+    compute_library_cmake_flag+=$(getFile $CMPLR_ROOT/lib cllibrary.rtl)
+    compute_library_cmake_flag+=$(getFile $CMPLR_ROOT/lib cllibrary*.o)
+    compute_library_cmake_flag+=$(getLibrary $CMPLR_ROOT/lib libcommon_clang)
+    compute_library_cmake_flag+=$(getLibrary $TCM_ROOT/lib libhwloc)
+    compute_library_cmake_flag+=$(getLibrary $CMPLR_ROOT/lib libintelocl)
+    compute_library_cmake_flag+=$(getLibrary $CMPLR_ROOT/lib libocl_svml_*)
     compute_library_cmake_flag+=$(getLibrary $UMF_ROOT/lib libumf)
 fi
 

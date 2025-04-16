@@ -6,7 +6,7 @@ RUN dnf update -y && \
            wget freetype-devel fontconfig-devel \
            fftw-devel openblas-devel lapack-devel \
            glfw-devel graphviz graphviz-devel \
-           mesa-libGLU-devel freeimage-devel && \
+           mesa-libGLU-devel freeimage-devel patchelf && \
     dnf clean all
 
 # Set location for OpenCL library
