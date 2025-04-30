@@ -11,7 +11,7 @@ RUN apt-get update -y && \
                        libfreeimage-dev libglu1-mesa-dev
 
 # Set location for OpenCL library
-ENV OCL_ROOT /usr
+ENV OCL_ROOT=/usr
 
 # CMake
 RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null \

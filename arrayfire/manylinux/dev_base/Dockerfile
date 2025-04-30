@@ -10,8 +10,8 @@ RUN dnf update -y && \
     dnf clean all
 
 # Set location for OpenCL library
-ENV OCL_ROOT /usr
-ENV OPENCL_ROOT /usr
+ENV OCL_ROOT=/usr
+ENV OPENCL_ROOT=/usr
 
 # Ninja build system
 RUN cd /usr/src && \
