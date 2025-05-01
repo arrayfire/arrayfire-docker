@@ -1,8 +1,8 @@
 #!/bin/bash
 
 function getLibrary {
-    find $1 -name $2.so* -exec cp "{}" /tmp \;
-    find /tmp -name $2.so* -exec patchelf --set-rpath '$ORIGIN' "{}" \;
+    find $1 -name $2.so* -exec cp -P "{}" /tmp \;
+    find /tmp -type f -name $2.so* -exec patchelf --set-rpath '$ORIGIN' "{}" \;
     echo "`find /tmp -name $2.so* | xargs |  awk '{ gsub(\" \",\";\",$0); print $0 }'`;"
 }
 
@@ -21,13 +21,14 @@ build_oneapi=ON
 build_opencl=ON
 build_type="RelWithDebInfo"
 compute_library_cmake_flag="-DAF_COMPUTE_LIBRARY=Intel-MKL"
+sycl_compiler_cmake_flags=""
 
 distro=$(paste -d "_" <(cat /etc/*release | grep "^NAME=" | head -n 1 | cut -d '"' -f 2) <(cat /etc/*release | grep "^VERSION_ID=" | head -n 1 | cut -d '"' -f 2))
 build_dir=build_$distro
 
 AF_CUDA_arch_build_targets="5.0;5.2;6.0;6.1;7.0;7.5;8.0;8.6;8.9;9.0;9.0+PTX"
 
-LONGOPTIONS=no-gl,build-type:,no-mkl,no-cpu,no-cuda,no-oneapi,no-opencl,package-type:,cuda-arch:
+LONGOPTIONS=no-gl,build-type:,no-mkl,no-cpu,no-cuda,no-oneapi,no-opencl,package-type:,cuda-arch:,intel-compiler:
 PARSED=$(getopt --options="" --longoptions=$LONGOPTIONS --name "$0" -- "$@")
 if [[ $? -ne 0 ]]; then
     # e.g. $? == 1
@@ -77,6 +78,10 @@ while true; do
             AF_CUDA_arch_build_targets="$2"
             shift 2
             ;;
+        --intel-compiler)
+            intel_cmplr_root="$2"
+            shift 2
+            ;;
         --)
             shift
             break
@@ -97,6 +102,7 @@ if [[ ! -d arrayfire/ ]]; then
     git config user.name "Installer Builder"
     git merge -m "add_mkl_install_libs" origin/add_mkl_install_libs
     git merge -m "update_af_deps" origin/update_af_deps
+    git merge -m "windows_installer_fixes" origin/windows_installer_fixes
 else
     cd arrayfire
     git pull
@@ -107,7 +113,7 @@ cd "$build_dir"
 
 if [ "$use_oneapi" = "ON" ]; then
     set +x
-    source /opt/intel/oneapi/setvars.sh
+    source ${intel_cmplr_root}/oneapi/setvars.sh
     set -x
     compute_library_cmake_flag+=" -DAF_ADDITIONAL_MKL_LIBRARIES:FILEPATHS="
     compute_library_cmake_flag+=$(getLibrary $TBBROOT libtbb)
@@ -127,6 +133,8 @@ if [ "$use_oneapi" = "ON" ]; then
     compute_library_cmake_flag+=$(getLibrary $CMPLR_ROOT/lib libintelocl)
     compute_library_cmake_flag+=$(getLibrary $CMPLR_ROOT/lib libocl_svml_*)
     compute_library_cmake_flag+=$(getLibrary $UMF_ROOT/lib libumf)
+
+    sycl_compiler_cmake_flags+=" -DCMAKE_SYCL_COMPILER=icpx \'-DCMAKE_SYCL_FLAGS=-fsycl -D_GLIBCXX_USE_CXX11_ABI=1\'"
 fi
 
 # Look for correct OpenCL library and headers, location depends on the distro
@@ -154,8 +162,7 @@ cmake -G Ninja                                                                  
       -DAF_BUILD_CUDA:BOOL="$build_cuda"                                                     \
       -DAF_BUILD_OPENCL:BOOL="$build_opencl"                                                 \
       -DAF_BUILD_FORGE:BOOL=$with_graphics                                                   \
-      -DCMAKE_SYCL_COMPILER=icpx                                                             \
-      -DCMAKE_SYCL_FLAGS="-fsycl -D_GLIBCXX_USE_CXX11_ABI=1"                                 \
+      $sycl_compiler_cmake_flags                                                             \
       -DAF_WITH_IMAGEIO:BOOL=ON                                                              \
       -DAF_WITH_LOGGING:BOOL=ON                                                              \
       -DAF_INSTALL_STANDALONE:BOOL=ON                                                        \
@@ -170,7 +177,7 @@ cmake -G Ninja                                                                  
 # This may need to be adjusted depending on how much memory your system has.
 # oneAPI backend compilation uses a lot.
 #cmake --build . -- -v
-cmake --build . -j 4 -- -v
+cmake --build . -j 8 -- -v
 
 cpack -G "$package_type"
 
