@@ -29,9 +29,11 @@ cd /usr/src/arrayfire-binary-python-wrapper
 git pull origin afwheel310
 source /opt/intel/oneapi/setvars.sh
 export AF_BUILD_LOCAL_LIBS=1
-export CMAKE_BUILD_PARALLEL_LEVEL=3
 python$AF_PYTHON_VERSION -m pip install -r requirements.txt
-python$AF_PYTHON_VERSION -m build --wheel -v
+
+CMAKE_ARGS="-DAF_BUILD_OPENCL=$AF_BUILD_OPENCL -DAF_BUILD_CUDA=$AF_BUILD_CUDA -DAF_BUILD_ONEAPI=$AF_BUILD_ONEAPI -DAF_COMPUTE_LIBRARY=$AF_COMPUTE_LIBRARY \
+-DAF_BUILD_FORGE=$AF_BUILD_FORGE -DAF_WITH_STATIC_CUDA_NUMERIC_LIBS=$AF_WITH_STATIC_CUDA_NUMERIC_LIBS -DAF_WITH_IMAGEIO=$AF_WITH_IMAGEIO \
+-DCUDA_architecture_build_targets=$AF_CUDA_ARCHITECTURES -DFG_USE_STATIC_CPPFLAGS=$FG_USE_STATIC_CPPFLAGS -DFG_WITH_FREEIMAGE=$FG_WITH_FREEIMAGE" python$AF_PYTHON_VERSION -m build --wheel -v
 
 #test wrapper
 python$AF_PYTHON_VERSION -m pip install dist/arrayfire_binary_python_wrapper-0.8.0+af3.10.0-py3-none-linux_x86_64.whl

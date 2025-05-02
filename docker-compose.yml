@@ -40,9 +40,35 @@ services:
     build:
       context: ./arrayfire/manylinux/wheels
       args:
+        ### ENVIRONMENT FLAGS ###
         AF_CUDA_MAJOR_VERSION: 12
         AF_CUDA_MINOR_VERSION: 6
-        AF_PYTHON_VERSION: 3.11
+        AF_PYTHON_MAJOR_VERSION: 3
+        AF_PYTHON_MINOR_VERSION: 11
+
+        ### ARRAYFIRE BUILD FLAGS ###
+        AF_BUILD_OPENCL: "ON"
+        AF_BUILD_CUDA: "ON"
+        AF_BUILD_ONEAPI: "ON"
+      
+        # CPU BACKEND
+        AF_COMPUTE_LIBRARY: "Intel-MKL"
+        
+        # CUDA BACKEND
+        AF_WITH_STATIC_CUDA_NUMERIC_LIBS: "OFF"
+        AF_CUDA_ARCHITECTURES: "5.0;5.2;6.0;6.1;7.0;7.5;8.0;8.6;8.9;9.0;9.0+PTX"
+        
+        # UTILS
+        AF_WITH_IMAGEIO: "ON"
+        AF_BUILD_FORGE: "ON"
+
+        # FORGE flags if Forge enabled
+        FG_USE_STATIC_CPPFLAGS: "OFF"
+        FG_WITH_FREEIMAGE: "OFF"
+
+        # CMAKE PARALLEL THREADS
+        CMAKE_BUILD_PARALLEL_LEVEL: 4
+
     volumes:
       - ./arrayfire/scripts:/scripts
       - ./build_manylinux_arrayfire_pywheel_3_11:/usr/src
