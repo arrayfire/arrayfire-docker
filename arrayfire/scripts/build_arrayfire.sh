@@ -100,9 +100,6 @@ if [[ ! -d arrayfire/ ]]; then
     cd arrayfire
     git config user.email "installer@docker.xyz"
     git config user.name "Installer Builder"
-    git merge -m "add_mkl_install_libs" origin/add_mkl_install_libs
-    git merge -m "update_af_deps" origin/update_af_deps
-    git merge -m "windows_installer_fixes" origin/windows_installer_fixes
 else
     cd arrayfire
     git pull
