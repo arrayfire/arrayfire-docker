@@ -1,6 +1,6 @@
-FROM nvidia/cuda:12.8.1-base-ubuntu22.04
+FROM nvidia/cuda:12.9.0-base-ubuntu22.04
 
-RUN apt update && apt-get -y install nvidia-compute-utils-570 wget clinfo build-essential cmake
+RUN apt update && apt-get -y install nvidia-compute-utils-575 wget clinfo build-essential cmake
 
 RUN wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
     | gpg --dearmor | tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null && \
