@@ -1,5 +1,14 @@
 #!/bin/bash
 
+if [ ${AF_CUDA_MAJOR_VERSION} -eq 12 ]; then
+    if [ ${AF_CUDA_MINOR_VERSION} -lt 4 ]; then
+        source /opt/rh/gcc-toolset-12/enable
+    elif [ ${AF_CUDA_MINOR_VERSION} -lt 8 ]; then
+        source /opt/rh/gcc-toolset-13/enable
+    fi
+fi
+
+
 function getLibrary {
     find $1 -name $2.so* -exec cp -P "{}" /tmp \;
     find /tmp -type f -name $2.so* -exec patchelf --set-rpath '$ORIGIN' "{}" \;

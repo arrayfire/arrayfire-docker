@@ -4,6 +4,14 @@ MAINTAINER Christophe Murphy <christophe@arrayfire.com>
 ARG AF_CUDA_MAJOR_VERSION
 ARG AF_CUDA_MINOR_VERSION
 
+RUN if [ ${AF_CUDA_MAJOR_VERSION} -eq 12 ]; then \
+      if [ ${AF_CUDA_MINOR_VERSION} -lt 4 ]; then \
+        dnf install -y gcc-toolset-12; \
+      elif [ ${AF_CUDA_MINOR_VERSION} -lt 8 ]; then \
+        dnf install -y gcc-toolset-13; \
+      fi; \
+    fi
+
 RUN dnf config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel8/x86_64/cuda-rhel8.repo && \
     dnf clean all && \
     dnf -y install cuda-toolkit-${AF_CUDA_MAJOR_VERSION}-${AF_CUDA_MINOR_VERSION} && \

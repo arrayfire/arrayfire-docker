@@ -13,23 +13,26 @@ services:
     depends_on:
       - af_manylinux_2_28_base
 
-  af_manylinux_2_28_cuda_12.8:
+  af_manylinux_2_28_cuda_12.6:
     build:
       context: ./arrayfire/manylinux/cuda_deps
       args:
         AF_CUDA_MAJOR_VERSION: 12
-        AF_CUDA_MINOR_VERSION: 8
-    image: af/manylinux/cuda:12.8
+        AF_CUDA_MINOR_VERSION: 6
+    image: af/manylinux/cuda:12.6
     depends_on:
       - af_manylinux_2_28_deps
 
   af_manylinux_2_28_arrayfire_mkl:
-    image: af/manylinux/cuda:12.8
+    image: af/manylinux/cuda:12.6
     depends_on:
-      - af_manylinux_2_28_cuda_12.8
+      - af_manylinux_2_28_cuda_12.6
+    environment:
+      - AF_CUDA_MAJOR_VERSION=12
+      - AF_CUDA_MINOR_VERSION=6
     volumes:
       - ./arrayfire/scripts:/scripts
-      - ./build_manylinux_arrayfire_mkl_2025_cuda_12_8:/usr/src
+      - ./build_manylinux_arrayfire_mkl_2025_cuda_12_6:/usr/src
     stdin_open: true
     tty: true
     command: "/scripts/build_arrayfire.sh --build-type RelWithDebInfo 
@@ -37,12 +40,15 @@ services:
              --intel-compiler \"/opt/intel\""
 
   af_manylinux_2_28_arrayfire_openblas:
-    image: af/manylinux/cuda:12.8
+    image: af/manylinux/cuda:12.6
     depends_on:
-      - af_manylinux_2_28_cuda_12.8
+      - af_manylinux_2_28_cuda_12.6
+    environment:
+      - AF_CUDA_MAJOR_VERSION=12
+      - AF_CUDA_MINOR_VERSION=6
     volumes:
       - ./arrayfire/scripts:/scripts
-      - ./build_manylinux_arrayfire_openblas_cuda_12_8:/usr/src
+      - ./build_manylinux_arrayfire_openblas_cuda_12_6:/usr/src
     stdin_open: true
     tty: true
     command: "/scripts/build_arrayfire.sh --build-type RelWithDebInfo 
@@ -62,36 +68,42 @@ services:
     depends_on:
       - af_ubuntu_22_04_base
 
-  af_ubuntu_22_04_cuda_12.8:
+  af_ubuntu_22_04_cuda_12.6:
     build:
       context: ./arrayfire/ubuntu/cuda_deps
       args:
         AF_CUDA_MAJOR_VERSION: 12
-        AF_CUDA_MINOR_VERSION: 8
-    image: af/ubuntu/cuda:12.8
+        AF_CUDA_MINOR_VERSION: 6
+    image: af/ubuntu/cuda:12.6
     depends_on:
       - af_ubuntu_22_04_deps
 
   af_ubuntu_22_04_arryfire_mkl:
-    image: af/ubuntu/cuda:12.8
+    image: af/ubuntu/cuda:12.6
     depends_on:
-      - af_ubuntu_22_04_cuda_12.8
+      - af_ubuntu_22_04_cuda_12.6
+    environment:
+      - AF_CUDA_MAJOR_VERSION=12
+      - AF_CUDA_MINOR_VERSION=6
     volumes:
       - ./arrayfire/scripts:/scripts
-      - ./build_ubuntu_arrayfire_mkl_2025_cuda_12_8:/usr/src
+      - ./build_ubuntu_arrayfire_mkl_2025_cuda_12_6:/usr/src
     stdin_open: true
     tty: true
     command: "/scripts/build_arrayfire.sh --build-type RelWithDebInfo 
              --package-type DEB --cuda-arch \"5.0;5.2;6.0;6.1;7.0;7.5;8.0;8.6;8.9;9.0;9.0+PTX\"
              --intel-compiler \"/opt/intel\""
 
-  af_ubuntu_22_04_openblas_cuda_12.8:
-    image: af/ubuntu/cuda:12.8
+  af_ubuntu_22_04_openblas_cuda_12.6:
+    image: af/ubuntu/cuda:12.6
     depends_on:
-      - af_ubuntu_22_04_cuda_12.8
+      - af_ubuntu_22_04_cuda_12.6
+    environment:
+      - AF_CUDA_MAJOR_VERSION=12
+      - AF_CUDA_MINOR_VERSION=6
     volumes:
       - ./arrayfire/scripts:/scripts
-      - ./build_ubuntu_arrayfire_openblas_cuda_12_8:/usr/src
+      - ./build_ubuntu_arrayfire_openblas_cuda_12_6:/usr/src
     stdin_open: true
     tty: true
     command: "/scripts/build_arrayfire.sh --build-type RelWithDebInfo 
