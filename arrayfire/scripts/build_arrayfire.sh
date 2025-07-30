@@ -105,7 +105,7 @@ done
 cd /usr/src
 
 if [[ ! -d arrayfire/ ]]; then
-    git clone --recursive https://github.com/arrayfire/arrayfire
+    git clone --recursive -b v3.10 https://github.com/arrayfire/arrayfire
     cd arrayfire
     git config user.email "installer@docker.xyz"
     git config user.name "Installer Builder"
