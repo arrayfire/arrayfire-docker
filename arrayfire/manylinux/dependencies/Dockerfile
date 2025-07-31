@@ -29,13 +29,7 @@ COPY --from=boost /artifact /usr
 # Doxgyen
 COPY --from=doxygen /artifact /usr
 
-# oneAPI
-RUN echo $'[oneAPI]\n\
-name=Intel® oneAPI repository\n\
-baseurl=https://yum.repos.intel.com/oneapi\n\
-enabled=1\n\
-gpgcheck=1\n\
-repo_gpgcheck=1\n\
-gpgkey=https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB' > /etc/yum.repos.d/oneAPI.repo && \
-cat /etc/yum.repos.d/oneAPI.repo && \
-dnf -y update && dnf -y install intel-oneapi-base-toolkit && dnf clean all
+## oneAPI (sh installer)
+RUN wget https://registrationcenter-download.intel.com/akdlm/IRC_NAS/bd1d0273-a931-4f7e-ab76-6a2a67d646c7/intel-oneapi-base-toolkit-2025.2.0.592.sh && \
+    sh ./intel-oneapi-base-toolkit-2025.2.0.592.sh -a --silent --cli --eula accept && \
+    rm intel-oneapi-base-toolkit-2025.2.0.592.sh
