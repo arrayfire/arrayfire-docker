@@ -123,6 +123,10 @@ if [ "$use_oneapi" = "ON" ]; then
     set -x
     compute_library_cmake_flag+=" -DAF_ADDITIONAL_MKL_LIBRARIES:FILEPATHS="
     compute_library_cmake_flag+=$(getLibrary $TBBROOT libtbb)
+    #This symlink is needed for oneMKL to work with tbb on the CPU back end
+    pushd /tmp; ln -fsn libtbb.so libtbb.so.2; popd
+    compute_library_cmake_flag+='/tmp/libtbb.so.2;'
+    #
     compute_library_cmake_flag+=$(getLibrary $CMPLR_ROOT/lib libimf)
     compute_library_cmake_flag+=$(getLibrary $CMPLR_ROOT/lib libsycl)
     compute_library_cmake_flag+=$(getLibrary $CMPLR_ROOT/lib libsvml)
