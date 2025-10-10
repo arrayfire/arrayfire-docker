@@ -1,0 +1,156 @@
+version: "3.4"
+
+services:
+  af_manylinux_2_28_base:
+    build:
+      context: ./arrayfire/manylinux/dev_base
+    image: af/manylinux/dev_base
+
+  af_manylinux_2_28_deps:
+    build:
+      context: ./arrayfire/manylinux/dependencies
+    image: af/manylinux/dependencies
+    depends_on:
+      - af_manylinux_2_28_base
+
+  af_manylinux_2_28_cuda_12.8:
+    build:
+      context: ./arrayfire/manylinux/cuda_deps
+      args:
+        AF_CUDA_MAJOR_VERSION: 12
+        AF_CUDA_MINOR_VERSION: 8
+    image: af/manylinux/cuda:12.8
+    depends_on:
+      - af_manylinux_2_28_deps
+
+  af_manylinux_2_28_cuda_12.6:
+    build:
+      context: ./arrayfire/manylinux/cuda_deps
+      args:
+        AF_CUDA_MAJOR_VERSION: 12
+        AF_CUDA_MINOR_VERSION: 6
+    image: af/manylinux/cuda:12.6
+    depends_on:
+      - af_manylinux_2_28_deps
+
+  af_manylinux_2_28_arrayfire_pywheel_3_11:
+    image: af/manylinux/pywheel:3.11
+    depends_on:
+      - af_manylinux_2_28_cuda_12.8
+    build:
+      context: ./arrayfire/manylinux/wheels
+      args:
+        ### ENVIRONMENT FLAGS ###
+        AF_CUDA_MAJOR_VERSION: 12
+        AF_CUDA_MINOR_VERSION: 8
+        AF_PYTHON_MAJOR_VERSION: 3
+        AF_PYTHON_MINOR_VERSION: 11
+
+        ### ARRAYFIRE BUILD FLAGS ###
+        AF_BUILD_OPENCL: "ON"
+        AF_BUILD_CUDA: "ON"
+        AF_BUILD_ONEAPI: "ON"
+      
+        # CPU BACKEND
+        AF_COMPUTE_LIBRARY: "Intel-MKL"
+        
+        # CUDA BACKEND
+        AF_WITH_STATIC_CUDA_NUMERIC_LIBS: "OFF"
+        AF_CUDA_ARCHITECTURES: "5.0;5.2;6.0;6.1;7.0;7.5;8.0;8.6;8.9;9.0;9.0+PTX"
+        
+        # UTILS
+        AF_WITH_IMAGEIO: "ON"
+        AF_BUILD_FORGE: "ON"
+
+        # FORGE flags if Forge enabled
+        FG_USE_STATIC_CPPFLAGS: "OFF"
+        FG_WITH_FREEIMAGE: "OFF"
+
+        # CMAKE PARALLEL THREADS
+        CMAKE_BUILD_PARALLEL_LEVEL: 8
+
+    volumes:
+      - ./arrayfire/scripts:/scripts
+      - ./build_manylinux_arrayfire_pywheel_3_11:/usr/src
+    stdin_open: true
+    tty: true
+    command: "/scripts/build_wheel.sh"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  af_manylinux_2_28_arrayfire_mkl:
+    image: af/manylinux/cuda:12.8
+    depends_on:
+      - af_manylinux_2_28_cuda_12.8
+    volumes:
+      - ./arrayfire/scripts:/scripts
+      - ./build_manylinux_arrayfire_mkl_2025_cuda_12_8:/usr/src
+    stdin_open: true
+    tty: true
+    command: "/scripts/build_arrayfire.sh --build-type RelWithDebInfo 
+             --package-type STGZ --cuda-arch \"5.0;5.2;6.0;6.1;7.0;7.5;8.0;8.6;8.9;9.0;9.0+PTX\""
+
+  af_manylinux_2_28_arrayfire_openblas:
+    image: af/manylinux/cuda:12.8
+    depends_on:
+      - af_manylinux_2_28_cuda_12.8
+    volumes:
+      - ./arrayfire/scripts:/scripts
+      - ./build_manylinux_arrayfire_openblas_cuda_12_8:/usr/src
+    stdin_open: true
+    tty: true
+    command: "/scripts/build_arrayfire.sh --build-type RelWithDebInfo 
+             --package-type STGZ --cuda-arch \"5.0;5.2;6.0;6.1;7.0;7.5;8.0;8.6;8.9;9.0;9.0+PTX\" --no-mkl"
+
+  af_ubuntu_22_04_base:
+    build:
+      context: ./arrayfire/ubuntu/dev_base
+      args:
+        UBUNTU_LTS_VERSION: 22.04
+    image: af/ubuntu/dev_base
+
+  af_ubuntu_22_04_deps:
+    build:
+      context: ./arrayfire/ubuntu/dependencies
+    image: af/ubuntu/dependencies
+    depends_on:
+      - af_ubuntu_22_04_base
+
+  af_ubuntu_22_04_cuda_12.8:
+    build:
+      context: ./arrayfire/ubuntu/cuda_deps
+      args:
+        AF_CUDA_VERSION: 12-8
+    image: af/ubuntu/cuda:12.8
+    depends_on:
+      - af_ubuntu_22_04_deps
+
+  af_ubuntu_22_04_arryfire_mkl:
+    image: af/ubuntu/cuda:12.8
+    depends_on:
+      - af_ubuntu_22_04_cuda_12.8
+    volumes:
+      - ./arrayfire/scripts:/scripts
+      - ./build_ubuntu_arrayfire_mkl_2025_cuda_12_8:/usr/src
+    stdin_open: true
+    tty: true
+    command: "/scripts/build_arrayfire.sh --build-type RelWithDebInfo 
+             --package-type DEB --cuda-arch \"5.0;5.2;6.0;6.1;7.0;7.5;8.0;8.6;8.9;9.0;9.0+PTX\""
+
+  af_ubuntu_22_04_openblas_cuda_12.8:
+    image: af/ubuntu/cuda:12.8
+    depends_on:
+      - af_ubuntu_22_04_cuda_12.8
+    volumes:
+      - ./arrayfire/scripts:/scripts
+      - ./build_ubuntu_arrayfire_openblas_cuda_12_8:/usr/src
+    stdin_open: true
+    tty: true
+    command: "/scripts/build_arrayfire.sh --build-type RelWithDebInfo 
+             --package-type DEB --cuda-arch \"5.0;5.2;6.0;6.1;7.0;7.5;8.0;8.6;8.9;9.0;9.0+PTX\" --no-mkl"
+

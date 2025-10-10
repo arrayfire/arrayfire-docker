@@ -1,0 +1,9 @@
+Builders are defined in the docker-compose.yml file.
+
+To run a particular build, do: docker-compose up <BUILDER_NAME>
+
+The build script used is: arrayfire/scripts/build_arrayfire.sh
+
+A directory will be created here with the build files with the form: build_<OS NAME>_arrayfire_<MKL_VERSION/openblas>_<CUDA_VERSION>
+
+The installer can be tested by copying the installer package to the test docker in test_dockers and building (note for the CUDA back end you will need an Nvidia GPU and the CUDA docker toolkit installed).
