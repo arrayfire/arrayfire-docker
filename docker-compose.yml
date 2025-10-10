@@ -36,13 +36,13 @@ services:
   af_manylinux_2_28_arrayfire_pywheel_3_11:
     image: af/manylinux/pywheel:3.11
     depends_on:
-      - af_manylinux_2_28_cuda_12.6
+      - af_manylinux_2_28_cuda_12.8
     build:
       context: ./arrayfire/manylinux/wheels
       args:
         ### ENVIRONMENT FLAGS ###
         AF_CUDA_MAJOR_VERSION: 12
-        AF_CUDA_MINOR_VERSION: 6
+        AF_CUDA_MINOR_VERSION: 8
         AF_PYTHON_MAJOR_VERSION: 3
         AF_PYTHON_MINOR_VERSION: 11
 
@@ -67,7 +67,7 @@ services:
         FG_WITH_FREEIMAGE: "OFF"
 
         # CMAKE PARALLEL THREADS
-        CMAKE_BUILD_PARALLEL_LEVEL: 4
+        CMAKE_BUILD_PARALLEL_LEVEL: 8
 
     volumes:
       - ./arrayfire/scripts:/scripts
@@ -75,6 +75,13 @@ services:
     stdin_open: true
     tty: true
     command: "/scripts/build_wheel.sh"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
   af_manylinux_2_28_arrayfire_mkl:
     image: af/manylinux/cuda:12.8
